@@ -3,6 +3,21 @@ import  urllib
 import  urllib2
 import  re
 import  cookielib
+import  HTMLParser
+
+class MyHTMLParser (HTMLParser.HTMLParser):
+    def __init__(self):
+        HTMLParser.HTMLParser.__init__(self)
+        self.links = []
+    def handle_starttag(self, tag, attrs):
+        if tag == "a":
+            if len(attrs) == 0:
+                pass
+            else:
+                for(variable, value) in attrs:
+                    if variable == "href":
+                        self.links.append(value)
+
 
 verifyURL = 'http://218.75.197.124:83/CheckCode.aspx'
 mainURL = 'http://218.75.197.124:83/'
@@ -16,7 +31,7 @@ password = '5201314ace'
 
 picture = opener.open(verifyURL).read()
 
-local  =open('verify.jpg','wb')
+local  =open('verify.jpg', 'wb')
 local.write(picture)
 local.close()
 
@@ -48,13 +63,17 @@ try:
     response = opener.open(request)
     result = response.read().decode('gb2312')
     print '成功进入教务系统！'
+    print result
 except urllib2.HTTPError,e:
     print e.code
 
-postData1 = {
-
-}
+# read = opener.open(request).read().decode('gb2312')
+# htmlParser = MyHTMLParser()
+# htmlParser.feed(read)
+# htmlParser.close()
+# print htmlParser.links
 # request1 = urllib2.Request('http://218.75.197.124:83/xscjcx.aspx?xh=14408300135&xm=赵聪&gnmkdm=N121605')
 # response1 = opener.open(request1)
 # result1 = response1.read().decode('gb2312')
 # print result1
+
