@@ -42,7 +42,7 @@ secretCode = raw_input('输入验证码：')
 
 #登录发送的数据
 postData = {
-    '__VIEWSTATE': 'dDwyODE2NTM0OTg7Oz529WRwKbJXgvdgPs2wXT5Kr1qXcg==',
+    '__VIEWSTATE': 'dDwyODE2NTM0OTg7Oz4rjyctKiv0za3CywCzQmrWRISHnw==',  #*******
     'txtUserName': username,
     'TextBox2' : password,
     'txtSecretCode' : secretCode,   #验证码数据
@@ -72,7 +72,7 @@ try:
     response = opener.open(request)
     result = response.read().decode('gb2312')
     print '成功进入教务系统！'
-    # print result
+    print result
 except urllib2.HTTPError,e:
     print e.code
 
@@ -81,27 +81,27 @@ except urllib2.HTTPError,e:
 
 #到达查询成绩界面所需的验证数据
 headers1 = {
-    'Accept' : 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-    'Accept-Language' : 'zh-CN,zh;q=0.8',
-    'Connection' : 'keep-alive',
-    'Content-Type' : 'application/x-www-form-urlencoded',
-    'User-Agent' : 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/34.0.1847.116 Safari/537.36',
+    # 'Accept' : 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+    # 'Accept-Language' : 'zh-CN,zh;q=0.8',
+    # 'Connection' : 'keep-alive',
+    # 'Content-Type' : 'application/x-www-form-urlencoded',
+    # 'User-Agent' : 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/34.0.1847.116 Safari/537.36',
     # 'Origin' : 'http://218.75.197.124:83',
-    'Referer': 'http://218.75.197.124:83/default2.aspx' + username,
+    'Referer': 'http://218.75.197.124:83/xs_main.aspx' + '?xh=' + username,  #Referer
     # 'Host' : '218.75.197.124:83',
-    'Cookie': cookie
+    # 'Cookie': cookie
 }
 
 #查询成绩界面的URL的地址数据
-URLdata = {
-    'xh' : username,
-    'xm' : name,
-    'gnmkdm' :gnmkdm
-}
+URLdata = {}
+URLdata['xh'] = username
+URLdata['xm'] = name
+URLdata['gnmkdm'] = gnmkdm
 data1 = urllib.urlencode(URLdata)
 
 #查询成绩的超链接引用,并进入从而获得 __VIEWSTATE 的值
-hrefURL = "xscjcx.aspx?" + data1
+hrefURL = "http://218.75.197.124:83/xscjcx.aspx" + "?" + data1
+print  hrefURL
 request1 = urllib2.Request(hrefURL,None,headers1)
 response1 = opener.open(request1)
 loginPage = response1.read().decode('gb2312')
