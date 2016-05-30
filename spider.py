@@ -54,10 +54,10 @@ postData = {
 
 #登录发送的验证
 headers = {
-    'Accept' : 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-    'Accept-Language' : 'zh-CN,zh;q=0.8',
-    'Connection' : 'keep-alive',
-    'Content-Type' : 'application/x-www-form-urlencoded',
+    # 'Accept' : 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+    # 'Accept-Language' : 'zh-CN,zh;q=0.8',
+    # 'Connection' : 'keep-alive',
+    # 'Content-Type' : 'application/x-www-form-urlencoded',
     'User-Agent' : 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/34.0.1847.116 Safari/537.36',
     # 'Origin' : 'http://218.75.197.124:83',
     # 'Referer' : 'http://218.75.197.124:83/default2.aspx',
@@ -81,39 +81,42 @@ except urllib2.HTTPError,e:
 
 #到达查询成绩界面所需的验证数据
 headers1 = {
-    # 'Accept' : 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-    # 'Accept-Language' : 'zh-CN,zh;q=0.8',
-    # 'Connection' : 'keep-alive',
-    # 'Content-Type' : 'application/x-www-form-urlencoded',
-    # 'User-Agent' : 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/34.0.1847.116 Safari/537.36',
-    # 'Origin' : 'http://218.75.197.124:83',
-    'Referer': 'http://218.75.197.124:83/xs_main.aspx' + '?xh=' + username,  #Referer
-    # 'Host' : '218.75.197.124:83',
-    # 'Cookie': cookie
+    'Accept' : 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
+    'Accept-Language' : 'zh-CN,zh;q=0.8',
+    'Connection' : 'keep-alive',
+    'Content-Type' : 'application/x-www-form-urlencoded',
+    'User-Agent' : 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/34.0.1847.116 Safari/537.36',
+    'Origin' : 'http://218.75.197.124',
+    'Referer': 'http://218.75.197.124/xs_main.aspx?xh=' + username,  #Referer
+    'Host' : '218.75.197.124:83',
+    # 'Cookie': cookie,
+    'Pragma': 'no-cache',
 }
 
 #查询成绩界面的URL的地址数据
-URLdata = {}
-URLdata['xh'] = username
-URLdata['xm'] = name
-URLdata['gnmkdm'] = gnmkdm
-data1 = urllib.urlencode(URLdata)
+URLdata = urllib.urlencode({
+     'xh': '14408300135',
+     'xm':  name,
+     'gnmkdm': 'N121605'
+})
+
+# data1 = urllib.urlencode(URLdata)
 
 #查询成绩的超链接引用,并进入从而获得 __VIEWSTATE 的值
-hrefURL = "http://218.75.197.124:83/xscjcx.aspx" + "?" + data1
+hrefURL = "http://218.75.197.124:83/xscjcx.aspx?"  + URLdata
 print  hrefURL
 request1 = urllib2.Request(hrefURL,None,headers1)
-response1 = opener.open(request1)
-loginPage = response1.read().decode('gb2312')
+loginPage = unicode(opener.open(request1).read(),'gb2312').encode("utf-8")
 
 #正则表达式来匹配（__VIEWSTATE）的值
-string = r'name="__VIEWSTATE" value="(.+?)">'
-__VIEWSTATE = re.findall(string, hrefURL)
+string = r'name="__VIEWSTATE" value="(.+?)"> '
+view = re.compile(string)
+__VIEWSTATE = view.findall(hrefURL)[0]
 
 #访问成绩页面所需发送的数据
 postData2 = {
     '__VIEWSTATE' : __VIEWSTATE,
-    'btn_zcj' : '历年成绩'
+    'btn_zcj' : "历年成绩"
 }
 data2 = urllib.urlencode(postData2)
 
