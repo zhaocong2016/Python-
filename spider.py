@@ -6,18 +6,17 @@ import  cookielib
 import  HTMLParser
 
 # 解析HTML页面的类
-class MyHTMLParser (HTMLParser.HTMLParser):
-    def __init__(self):
-        HTMLParser.HTMLParser.__init__(self)
-        self.links = []
+class MYHTMLParser(HTMLParser.HTMLParser):
+    tr_text = False
     def handle_starttag(self, tag, attrs):
-        if tag == "td":
-            if len(attrs) == 0:
-                pass
-            else:
-                for(variable, value) in attrs:
-                    if variable == "td":
-                        self.links.append(value)
+        if tag == 'tr':
+            self.tr_text = True
+    def handle_endtag(self, tag):
+        if tag == 'tr':
+            self.tr_text = False
+    def handle_data(self, data):
+        if self.tr_text == True:
+            print data
 
 # 数据参数
 verifyURL = 'http://172.16.65.99/CheckCode.aspx'
@@ -71,31 +70,31 @@ request = urllib2.Request(mainURL,data,headers)
 
 try:
     response = opener.open(request)
-    result = response.read().decode('gb2312')
+    result = response.read().decode('gbk')
     print '成功进入教务系统！'
-    print result
+    # print result
 except urllib2.HTTPError,e:
     print e.code
 
 for i in cookie:
     Cookie = i.name + "=" + i.value
-print Cookie
+# print Cookie
 
 
 #到达查询成绩界面所需的验证数据
 headers1 = {
     'Accept' : 'text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,*/*;q=0.8',
-    'Accept-Encoding':'gzip, deflate',
+    'Accept-Encoding':'gzip,deflate,sdch',
     'Accept-Language' : 'zh-CN,zh;q=0.8',
-    'Cache-Control':'no-cache',
+    'Cache-Control':'max-age=0',
     'Connection' : 'keep-alive',
-    'Content-Type' : 'application/x-www-form-urlencoded',
+    #'Content-Type' : 'application/x-www-form-urlencoded',
     'User-Agent' : 'Mozilla/5.0 (Windows NT 6.1) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/34.0.1847.116 Safari/537.36',
     'Origin' : 'http://218.75.197.124',
-    'Referer': 'http://218.75.197.124/xs_main.aspx?xh=' + username,  #Referer
+    'Referer': 'http://218.75.197.124:83/xscjcx.aspx?xh=14408300135&xm=%E8%B5%B5%E8%81%AA&gnmkdm=N121605' ,  #Referer
     'Host' : '218.75.197.124:83',
     'Cookie': Cookie,
-    'Pragma': 'no-cache',
+    #'Pragma': 'no-cache',
 }
 
 #查询成绩界面的URL的地址数据
@@ -105,18 +104,19 @@ URLdata = urllib.urlencode({
      'gnmkdm': 'N121605'
 })
 
-# data1 = urllib.urlencode(URLdata)
-
 #查询成绩的超链接引用,并进入从而获得 __VIEWSTATE 的值
 hrefURL = 'http://218.75.197.124:83/xscjcx.aspx?' + URLdata
-print  hrefURL
+# print  hrefURL
 request1 = urllib2.Request(hrefURL,None,headers1)
-loginPage = unicode(opener.open(request1).read(),'gb2312').encode("utf-8")
+loginPage = opener.open(request1).read().decode('gbk')
+#print loginPage
 
 #正则表达式来匹配（__VIEWSTATE）的值
-string = r'name="__VIEWSTATE" value="(.+?)"> '
-view = re.compile(string)
-__VIEWSTATE = view.findall(hrefURL)[0]
+view = r'name="__VIEWSTATE" value="(.+)" '
+view = re.compile(view)
+__VIEWSTATE = view.findall(loginPage)[0]
+
+#print  __VIEWSTATE
 
 #访问成绩页面所需发送的数据
 postData2 = {
@@ -128,12 +128,14 @@ data2 = urllib.urlencode(postData2)
 #进入hrefURL并发送data2数据来得到历年成绩的页面数据
 request2 = urllib2.Request(hrefURL,data2,headers1)
 scoreHtml = opener.open(request2)
-scorePage = scoreHtml.read().decode('gb2312')
+scorePage =scoreHtml.read().decode('gbk')
+#print scorePage
 
 #解析页面打印成绩
-htmlParser = MyHTMLParser()
+
+htmlParser = MYHTMLParser()
 htmlParser.feed(scorePage)
 htmlParser.close()
-print htmlParser.links
+
 
 
