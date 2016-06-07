@@ -31,6 +31,14 @@ cookie = cookielib.CookieJar()
 handler = urllib2.HTTPCookieProcessor(cookie)
 opener = urllib2.build_opener(handler)
 
+# 获取登录页的__VIEWSTATE
+page  = urllib2.urlopen(mainURL).read().decode('gbk')
+# print page
+viewState = r'name="__VIEWSTATE" value="(.+)" '
+viewState = re.compile(viewState)
+__VIEWSTATE0 = viewState.findall(page)[0]
+# print __VIEWSTATE0
+
 #访问并下载验证码
 picture = opener.open(verifyURL).read()
 local  =open('verify.jpg', 'wb')
@@ -41,7 +49,7 @@ secretCode = raw_input('输入验证码：')
 
 #登录发送的数据
 postData = {
-    '__VIEWSTATE': 'dDwyODE2NTM0OTg7Oz4hAtqyqUyL0G3Bvv9ESSw7WqdQ5Q==',  #*******
+    '__VIEWSTATE': __VIEWSTATE0,  #*******
     'txtUserName': username,
     'TextBox2' : password,
     'txtSecretCode' : secretCode,   #验证码数据
@@ -72,7 +80,7 @@ try:
     response = opener.open(request)
     result = response.read().decode('gbk')
     print '成功进入教务系统！'
-    # print result
+    print result
 except urllib2.HTTPError,e:
     print e.code
 
@@ -116,7 +124,7 @@ view = r'name="__VIEWSTATE" value="(.+)" '
 view = re.compile(view)
 __VIEWSTATE = view.findall(loginPage)[0]
 
-#print  __VIEWSTATE
+# print  __VIEWSTATE
 
 #访问成绩页面所需发送的数据
 postData2 = {
@@ -136,6 +144,3 @@ scorePage =scoreHtml.read().decode('gbk')
 htmlParser = MYHTMLParser()
 htmlParser.feed(scorePage)
 htmlParser.close()
-
-
-
